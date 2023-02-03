@@ -1,15 +1,15 @@
-//Package realtime provides access to Rocket.Chat's realtime API via ddp
+// Package realtime provides access to Rocket.Chat's realtime API via ddp
 package realtime
 
 import (
 	"errors"
 	"fmt"
+	apexlog "github.com/apex/log"
+	"github.com/gopackage/ddp"
+	"github.com/sony/sonyflake"
 	"log"
 	"net/url"
 	"strconv"
-
-	"github.com/gopackage/ddp"
-	"github.com/sony/sonyflake"
 )
 
 type Client struct {
@@ -17,7 +17,7 @@ type Client struct {
 	sf  *sonyflake.Sonyflake
 }
 
-//NewClient creates a new instance and connects to the websocket.
+// NewClient creates a new instance and connects to the websocket.
 func NewClient(serverURL *url.URL, debug bool) (*Client, error) {
 	sf := sonyflake.NewSonyflake(sonyflake.Settings{})
 	if sf == nil {
@@ -43,6 +43,10 @@ func NewClient(serverURL *url.URL, debug bool) (*Client, error) {
 	c := new(Client)
 	c.ddp = ddp.NewClient(wsURL, serverURL.String())
 	c.sf = sf
+
+	if debug {
+		apexlog.SetLevel(apexlog.DebugLevel)
+	}
 
 	if err := c.ddp.Connect(); err != nil {
 		return nil, err
